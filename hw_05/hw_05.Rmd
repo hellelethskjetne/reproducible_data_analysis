@@ -1,0 +1,64 @@
+---
+title: 'Homework #5'
+author: "Helle Leth Skjetne"
+date: "9/23/2020"
+output: github_document
+---
+
+# Setting up rquired packages and library
+```{r setup, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("nycflights13") #download the package if it is not already installed
+library(nycflights13)
+library(tidyverse)
+```
+
+# Split-apply-combine
+
+In this part I will answer questions 1 - 5 related to Homework #5. The code will be included in the code chunk below:
+
+## 1. Use ?nycflights13::flights to see the documentation of flights
+```{r q1, echo=TRUE}
+?nycflights13::flights
+```
+
+## 2. Use the glimpse() function to get a general sense of the flights data frame. How many rows and columns does flights have?
+```{r q2, echo=TRUE}
+flights <- nycflights13::flights #define the variable flights
+glimpse(flights) #get a glimpse of the data file flights
+###Answer:
+  #Rows: 336,776
+  #Columns: 19
+```
+
+
+## 3. Use filter() to create a data frame of just the flights that departed 2 hours late or more. What fraction of flights departed at least 2 hours late?
+```{r q3, echo=TRUE}
+### Create filter:
+delayedflights <- filter(.data = flights, flights$dep_delay >= 2) #filter data frame for flights that departed ≥2 late
+delayedflights
+### Determine fraction of flights that were at least 2 hours late:
+glimpse(delayedflights) #Rows: 120,382
+glimpse(flights) #Rows: 336,776
+fraction_late <- 120382/336776
+fraction_late #a fraction of 0.3574542 flights were 2 hours or more late
+```
+
+## 4. Use mutate() and paste0() to create a column that contains the combined airline and flight number (e.g., “UA5041”).
+```{r q4, echo=TRUE}
+airline_flightnum <- mutate(flights, flightnum = paste0(flights$carrier, flights$flight))
+airline_flightnum #contains the column "flightnum" with information about combined airline and flight number
+```
+
+## 5. Use group_by(), summarise(), and n() to make a data frame showing how many flights each aircraft (tail_num()) flew for each carrier throughout the whole data set.
+```{r q5, echo=TRUE}
+### Code to show number of flights each aircraft flew for each carrier:
+num_flights <- flights %>%
+  group_by(carrier, tailnum) %>%
+  summarise(
+    NumFlights = n()
+  ) #"Warning": `summarise()` regrouping output by 'carrier' (override with `.groups` argument)
+num_flights
+```
+
+

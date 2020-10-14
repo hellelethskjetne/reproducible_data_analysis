@@ -9,7 +9,7 @@ x #Display value from addition of variables
 # Or it can be done like this:
 a <- 2 # define variables
 y = a + a # Define formula
-
+ 
 print(a)
 y # Display resulting value from addition
 
@@ -109,3 +109,4 @@ p <- ggplot(data = med_enz, aes(x = activity.nM.hr)) +
   geom_histogram()
 print(p)
 ggsave(filename = "plots/hmk_2_plot.png", plot = p, height = 3, width = 4, units = "in", dpi = 300)
+
