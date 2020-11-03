@@ -1,0 +1,206 @@
+---
+title: "Untitled"
+author: "Helle Leth Skjetne"
+date: "10/27/2020"
+output: github_document
+---
+
+```{r setup, include=TRUE}
+#load packages
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(readxl)
+library(ggpubr)
+library(ggpmisc)
+
+#load data
+diamonds
+
+# Set working directory
+setwd("~/Documents/GEOL590/reproducible_data_analysis/homework/hw_10") #set working directory
+getwd() #check working directory
+```
+
+# Linear Models
+
+## Using the diamonds dataset, create a linear model of price as a function of the weight of the diamond (carat). According to that model, what price would you expect for a 1-carat diamond?
+### Make some plots of the raw data, and of the model fits, to make an argument as to which model is more useful. 
+
+```{r q1, include=TRUE}
+carat_price <- lm(price ~ carat, data = diamonds)
+summary(carat_price)
+
+m2 <- update(carat_price, ~ . + carat)
+
+thisDiamond <- data.frame(carat = 1)
+(modelEstimate <- predict(m2, newdata = thisDiamond,
+                          interval = "prediction", level = 0.95))
+# the predicted price is $5500 of a 1 carat diamond
+
+formula1 <- y ~ x
+
+#create plot for fun
+pricecarat <- ggplot(aes(x = carat, y = price), data = diamonds) +
+  geom_point(fill=I("red"), color=I("black"), shape=21) +
+  scale_x_continuous(lim = c(0, quantile(diamonds$carat, 0.99)) ) +
+  scale_y_continuous(lim = c(0, quantile(diamonds$price, 0.99)) ) +
+  ggtitle("Diamonds: Price vs. Carat") + 
+  geom_smooth(method = 'lm') +
+  stat_poly_eq(aes(label = paste0("atop(", ..eq.label.., ",", ..rr.label.., ")")), 
+               formula = formula1, 
+               parse = TRUE)
+pricecarat
+```
+
+
+## Now create a linear model of price as a function of carat and color.
+### What difference does it make if you convert color to a character vector before you make the model? Note that this is probably what you want to do in general, unless you really know what you’re doing.
+### Make some plots of the raw data, and of the model fits, to make an argument as to which model is more useful. 
+    
+```{r q2, include=TRUE}
+#linear model of price as a function of carat and color
+carat_price_color <- lm(price ~ carat + color, data = diamonds)
+carat_price_color
+summary(carat_price_color)
+
+# price = m1 * carat + m2 + color + b
+
+glimpse(diamonds)
+#levels)diamonds$color)
+summary(mod) #carat_price_color
+
+mod_unordered <- lm(price ~ carat + factor(color, ordered = FALSE), 
+               data = diamonds)
+summary(mod_unordered)
+
+mod_char <- lm(price ~ carat + as.character(color), #a character is unordered, same values in Estimate for the one example above
+               data = diamonds)
+
+
+#a linear model of price as a function of carat and color
+ggplot(aes(x = carat, y = price, color = color), data = diamonds) + 
+  geom_point(alpha = 0.5, size = 1) +
+  scale_color_brewer(type = 'div',
+                     guide = guide_legend(title = "Color", 
+                                          reverse = F,
+                                          override.aes = list(alpha = 1, 
+                                                              size = 2))) +  
+  ggtitle('Price of Diamonds as a Function of Carat and Color') + labs(x = "Carat", y = "Price ($)") + 
+  stat_poly_eq(aes(label = paste0("atop(", ..eq.label.., ",", ..rr.label.., ")")), 
+               formula = formula1, 
+               parse = TRUE) +
+    geom_smooth(method = 'lm') +
+  facet_wrap(vars(color))
+```
+
+# Objects and Methods
+
+## Write a function that returns some kind of structured result, which you define as a new S3 class. Your class doesn’t need to be anything fancy, but it should be different from existing classes.
+
+```{r q3, include=FALSE}
+
+dog <- function(barks = FALSE, breed = "canine") {
+  info <- list(
+    noisy = barks,
+    type = breed
+  )
+  
+  ## Set the name for the class
+  class(info) <- append(class(info), "dog")
+  return(info)
+}
+
+#create a new object of this class by calling the function:
+  ##for australian shepherd
+  aussie <- dog()
+  aussie
+  aussie$noisy
+  aussie$type
+  
+  ##for corgi
+  corgi <- dog(barks = TRUE, breed = "corgi")
+  corgi
+  
+  
+NorthAmerican <- function(eatsBreakfast=TRUE,myFavorite="cereal")
+{
+
+        me <- list(
+                hasBreakfast = eatsBreakfast,
+                favoriteBreakfast = myFavorite
+       )
+
+        ## Set the name for the class
+        class(me) <- append(class(me),"NorthAmerican")
+        return(me)
+}
+
+```
+
+## Write print and summarise methods for this class. These methods don’t need to be particularly useful, but they should be different from the default methods.
+
+```{r q4a, include=TRUE}
+setNoisy <- function(elObjecto, newValue) 
+  {
+  print("Calling the base setNoisy function")
+  UseMethod("setNoisy", elObjecto)
+  print("This has not yet been executed!")
+}
+
+setNoisy.default <- function(elObjecto, newValue)
+{
+  print("Cannot handle object.")
+  return(elObjecto)
+}
+
+setNoisy.dog <- function(elObjecto, newValue)
+{
+  print("In setNoisy.dog and setting the value.")
+  elObjecto$Noisy <- newValue
+  return(elObjecto)
+}
+
+#test method above:
+aussie <- dog()
+aussie$noisy
+aussie <- setNoisy(aussie, TRUE) #change "noisy" from FALSE to TRUE
+  #[1] "Calling the base setNoisy function"
+  #[1] "In setNoisy.dog and setting the value."
+aussie <- setNoisy(aussie, "Are the cutest dogs even if they sometimes bark!")
+  #[1] "Calling the base setNoisy function"
+  #[1] "In setNoisy.dog and setting the value."
+aussie$Noisy
+  #[1] "Are the cutest dogs even if they sometimes bark!"
+
+#use predefined accessors to get and set values held by an object:
+getNoisy <- function(elObjecto)
+{
+  print("Calling the base getNoisy function")
+  UseMethod("getNoisy", elObjecto)
+  print("This has not been executed yet!")
+}
+
+getNoisy.default <- function(elObjecto)
+{
+  print("Error. This object cannot be handeled.")
+  return(NULL)
+}
+
+getNoisy.dog <- function(elObjecto)
+{
+  print("In getNoisy.dog and returning the value")
+  return(elObjecto$Noisy)
+}
+
+```
+
+```{r qba, include=TRUE}
+newfuction <- function(h) {
+  for(i in 1:h) {
+    j <- 1+i^2
+    print(j)
+  }
+}
+newfuction(9)
+```
