@@ -1,21 +1,11 @@
 ---
-title: "Homework 9: Part 2"
+title: "Homework 9"
 author: "Helle Leth Skjetne"
-date: "10/21/2020"
+date: "12/2/2020"
 output: github_document
 ---
 
-***
-
-#Note: For Part 1 see other file in my GitHub directory for final project prospectus.
-
-***
-
-# Part 2: Functions and Programming
-
-## Response:
-
-```{r setuu2p, include=T, message = FALSE, warning = FALSE}
+```{r setup, include=T, message = FALSE, warning = FALSE}
 # Load packages
 library(ggplot2)
 library(tidyverse)
@@ -27,8 +17,7 @@ getwd() #check working directory
 
 ```
 
-
-```{r vari2ance, include=T, message = FALSE, warning = FALSE}
+```{r questionone, include=T, message = FALSE, warning = FALSE}
 ### 1) Following R for Data Science exercise 19.2.1.4, write a function to calculate the variance of a numeric vector. Be sure that the function auto-prints the result if the result is not assigned to a variable.
 
 #Create Data
@@ -73,8 +62,9 @@ print(varianceFUNCTION_control) #same as above (25943.3)
 
 ```
 
+```{r questiontwo, include=T, message = FALSE, warning = FALSE}
 ### 2) Write both_na(), a function that takes two vectors of the same length and returns the number of positions that have an NA in both vectors.
-```{r n2a, include=T, message = FALSE, warning = FALSE}
+
 #both_na <- function(x, y) {
   #sum(is.na(x) & is.na(y))
 #}
@@ -102,8 +92,10 @@ both_na_v2_test <- both_na_v2(na_1, na_2)
 print(both_na_v2_test)
 ```
 
+```{r questionthree, include=T, message = FALSE, warning = FALSE}
 ### 3) Write a function to create a specific kind of plot, with useful labels, etc., that can take a data frame as an argument. This is useful when you want to make multiple, similar plots from different data.
-```{r pl2ot, include=T, message = FALSE, warning = FALSE}
+
+
 #load data
 data(mtcars)
 
@@ -144,11 +136,12 @@ wt_mpg
 
 ```
 
+```{r questionfour, include=T, message = FALSE, warning = FALSE}
 ### 4) Write a function that takes one argument and does the following:
-       - if the argument is a numeric vector, multiplies every number in the vector by 2
-       - if the argument is a character vector, sorts the vector into alphabetical order
-       - if the argument is anything else, issues an informative warning and returns the argument unchanged
-```{r setu2pp, include=T, message = FALSE, warning = FALSE}
+       #- if the argument is a numeric vector, multiplies every number in the vector by 2
+       #- if the argument is a character vector, sorts the vector into alphabetical order
+       #- if the argument is anything else, issues an informative warning and returns the argument unchanged
+
 argu_vec <- function(x){
   for (i in x) {
     if (is.character(x)) {
@@ -174,8 +167,10 @@ test2 <- argu_vec(argu_vec_test_char)
 print(test2)
 ```
 
+```{r questionfive, include=T, message = FALSE, warning = FALSE}
 ### 5) Write a function that tries to calculate the mean of a vector using mean(). If that is successful, it returns the mean of the vector. If mean() throws an error, it issues an informative message and returns the input intact.
-```{r s2eetup, include=T, message = FALSE, warning = FALSE}
+
+
 #create a vector using seq() function
 #q5_vector <- seq(1,10, by=0.2)
 
@@ -226,8 +221,10 @@ mtest2 <- mean_test(vec2_mean_test)
 print(mtest2)
 ```
 
+```{r questionsix, include=T, message = FALSE, warning = FALSE}
 ### 6) Use system.time() (or, if you want to be more advanced about it, the bench or microbenchmark packages) to compare how long it takes to add two, 1-million-element random vectors and store the result in a third vector: a. Using the vectorized sum() operation b. Using a for loop with a pre-allocated vector to store the results c. Using a for loop without pre-allocating a vector to store the results
-```{r settu2p, include=T, message = FALSE, warning = FALSE}
+
+
 #a. Using the vectorized sum() operation (e.g., `+`):
 start_time1 <- Sys.time() #start timer
 
@@ -305,11 +302,11 @@ time4 <- end_time4 - start_time4
 time4 #Time difference of 0.281137 secs
 
 # c) or like this:
-sum_time3 <- system.time(
-  for (i in 1:1000000) {
-    sample(1:10, 1000000, replace = TRUE)[i] + 
-      sample(1:10, 1000000, replace = TRUE)[i] 
-  }
-)
-print(sum_time3)
+#sum_time3 <- system.time(
+#  for (i in 1:1000000) {
+#    sample(1:10, 1000000, replace = TRUE)[i] + 
+#      sample(1:10, 1000000, replace = TRUE)[i] 
+#  }
+#)
+#print(sum_time3) #not this takes a lot of time!
 ```
