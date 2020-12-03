@@ -1,0 +1,279 @@
+---
+title: "Homework 10 v2"
+author: "Helle Leth Skjetne"
+date: "11/23/2020"
+output: github_document
+---
+
+# Linear Models
+
+```{r setup, include=TRUE}
+
+#load packages
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(readxl)
+library(ggpubr)
+library(ggpmisc)
+library(gridExtra)
+library(tidyverse)
+library(MASS)
+
+#load data
+diamonds
+
+# Set working directory
+setwd("~/Documents/GEOL590/reproducible_data_analysis/homework/hw_10") #set working directory
+getwd() #check working directory
+
+```
+
+```{r q1, include=TRUE}
+
+#Using the diamonds dataset, create a linear model of price as a function of the weight of the diamond (carat). According to that model, what price would you expect for a 1-carat diamond?
+
+carat_price <- lm(price ~ carat, data = diamonds)
+summary(carat_price)
+
+m2 <- update(carat_price, ~ . + carat)
+
+thisDiamond <- data.frame(carat = 1)
+(modelEstimate <- predict(m2, newdata = thisDiamond,
+                          interval = "prediction", level = 0.95))
+#The predicted price is $5500 of a 1 carat diamond
+
+formula1 <- y ~ x
+
+#Create a linear model of price as a function of the weight of the diamond (carat)
+pricecarat <- ggplot(aes(x = carat, y = price), data = diamonds) +
+  geom_point(fill=I("red"), color=I("black"), shape=21) +
+  scale_x_continuous(lim = c(0, quantile(diamonds$carat, 0.99)) ) +
+  scale_y_continuous(lim = c(0, quantile(diamonds$price, 0.99)) ) +
+  ggtitle("Diamonds: Price vs. Carat") + 
+  geom_smooth(method = 'lm') +
+  stat_poly_eq(aes(label = paste0("atop(", ..eq.label.., ",", ..rr.label.., ")")), 
+               formula = formula1, 
+               parse = TRUE)
+pricecarat
+
+```
+
+```{r q2, include=TRUE}
+
+#Now create a linear model of price as a function of carat and color. 
+
+#Answer: Linear model of price as a function of carat and color
+carat_price_color <- lm(price ~ carat + color, data = diamonds)
+carat_price_color
+summary(carat_price_color)
+
+#or this model to see price (with color as a character)
+lmDiamond <- lm(price ~ carat +
+                  as.character(color), data = diamonds)
+summary(lmDiamond)
+
+
+#Plot of linear model of price as a function of carat and color:
+carat_color <- ggplot(aes(x = carat, y = price, color = color), data = diamonds) + 
+  geom_point(alpha = 0.5, size = 1) + 
+  #geom_smooth(method = "lm") + #note: adding trendlines here does not make a lot of sense b/c messy
+  labs(x = "Carat", y = "Price ($)") 
+carat_color
+
+#Same plot as above, just using a log10 
+carat_color_log10 <- carat_color +
+  coord_trans(x = "log10", y = "log10")
+carat_color_log10
+
+#Linear model of price as a function of carat and color, using facet grid
+carat_color_price_fg <- carat_color + 
+  facet_grid(color ~ .) +
+  geom_smooth(method = "lm", color = "black") + 
+  stat_regline_equation(label.x = 3.5, label.y = 5000, color = "black")
+carat_color_price_fg
+
+#What difference does it make if you convert color to a character vector before you make the model? Note that this is probably what you want to do in general, unless you really know what you’re doing.
+color_char_vec <- as.character(diamonds$color) #Convert color to a character vector
+color_char_vec
+
+#Answer: Linear model with color to a character vector
+carat_price_colorVec <- lm(price ~ carat + color_char_vec, data = diamonds)
+carat_price_colorVec
+
+#Answer Explaination: 
+# Below you see that the intercepts are assigned various names. For the pre-character vectorized "color" linear model you see that the intercept inhertis the character vector that was assigned (e.g., color_char_vecE, color_char_vecF, ... , color_char_vecJ). This is a "more correct" way to do linear regression models because:
+  # If you want to do linear regression between vector inputs and vector inputs, that is each "y" is a vector with "M" components, and each "x" is a vector with "N" components and the answer should look like "y ~ Ax + b" where "A" is an "M x N" matrix and "b" is a vector with "M" components, and each datum "x" is a vector of length "N" and each corresponding datum "y" is a vector of length "M".
+
+#Note: The returns when you conduct the call are different:
+#Character Vectorized: 
+  # Call:
+  #lm(formula = price ~ carat + color_char_vec, data = diamonds)
+  #Coefficients:
+     #(Intercept)            carat  color_char_vecE  color_char_vecF  color_char_vecG  color_char_vecH  
+         #-2136.23          8066.62           -93.78           -80.26           -85.54          -732.24  
+  #color_char_vecI  color_char_vecJ  
+        #-1055.73         -1914.47
+
+```
+
+
+```{r q3, include=TRUE}
+# Make some plots of the raw data, and of the model fits, to make an argument as to which model is more useful. 
+
+##Plots:
+
+#Create a linear model of price as a function of the weight of the diamond (carat)
+pricecarat <- ggplot(aes(x = carat, y = price), data = diamonds) +
+  geom_point(fill=I("red"), color=I("black"), shape=21) +
+  scale_x_continuous(lim = c(0, quantile(diamonds$carat, 0.99)) ) +
+  scale_y_continuous(lim = c(0, quantile(diamonds$price, 0.99)) ) +
+  ggtitle("Diamonds: Price vs. Carat") + 
+  geom_smooth(method = 'lm') +
+  stat_poly_eq(aes(label = paste0("atop(", ..eq.label.., ",", ..rr.label.., ")")), 
+               formula = formula1, 
+               parse = TRUE)
+pricecarat
+
+#Plot of linear model of price as a function of carat and color:
+carat_color <- ggplot(aes(x = carat, y = price, color = color), data = diamonds) + 
+  geom_point(alpha = 0.5, size = 1) + 
+  #geom_smooth(method = "lm") + #note: adding trendlines here does not make a lot of sense b/c messy
+  labs(x = "Carat", y = "Price ($)") 
+carat_color
+
+#Same plot as above, just using a log10 
+carat_color_log10 <- carat_color +
+  coord_trans(x = "log10", y = "log10")
+carat_color_log10
+
+#Linear model of price as a function of carat and color, using facet grid
+carat_color_price_fg <- carat_color + 
+  facet_grid(color ~ .) +
+  geom_smooth(method = "lm", color = "black") + 
+  stat_regline_equation(label.x = 3.5, label.y = 5000, color = "black")
+carat_color_price_fg
+
+#Bonus: Should the data have been pre-processed before making these models?
+  #Yes, it would be more beneficial to pre-process the data before making these models. In example it would be beneficial to fist convert color into a character vector, for the reasons explaioned in q2 (see text in problem above). 
+  # Based on the model fits in the plots above, it is more useful to display plots that are more descriptive and divides linear models out further (e.g., Y ~ Ax + b). In the plots where we added "color" as the "b"-component we can much easilier explain the data that we are given and it linear trends, as it is not just generalized to be descriptive for price across nall colors.
+```
+
+# Objects and Methods
+
+```{r q4, include=TRUE}
+# Write a function that returns some kind of structured result, which you define as a new S3 class. Your class doesn’t need to be anything fancy, but it should be different from existing classes.
+
+dog <- function(barks = FALSE, breed = "canine") {
+  info <- list(
+    noisy = barks,
+    type = breed
+  )
+  
+  ## Set the name for the class
+  class(info) <- append(class(info), "dog")
+  return(info)
+}
+
+#create a new object of this class by calling the function:
+  ##for australian shepherd
+  aussie <- dog()
+  aussie
+  aussie$noisy
+  aussie$type
+  
+  ##for corgi
+  corgi <- dog(barks = TRUE, breed = "corgi")
+  corgi
+  
+  
+NorthAmerican <- function(eatsBreakfast=TRUE,myFavorite="cereal")
+{
+
+        me <- list(
+                hasBreakfast = eatsBreakfast,
+                favoriteBreakfast = myFavorite
+       )
+
+        ## Set the name for the class
+        class(me) <- append(class(me),"NorthAmerican")
+        return(me)
+}
+
+```
+
+
+```{r q5, include=TRUE}
+# ## Write print and summarise methods for this class. These methods don’t need to be particularly useful, but they should be different from the default methods.
+
+# Any object in R can have any number of attributes
+mtcars_copy <- mtcars
+mtcars_copy
+
+attr(mtcars_copy, "author") <- "Helle"
+attr(mtcars_copy, "extraneous_data_frame") <- diamonds
+attr(mtcars_copy, "vector") <- letters
+
+attr(mtcars_copy, "author") #good for labelling data, stores it as attributes
+
+attr(mtcars_copy, "class") <- "my_new_class" #changed the class of the data frame, otherwise totally identical
+
+summary(mtcars) #generic functions will work differently
+summary(mtcars_copy)
+
+## Write print and summarise methods for this class. These methods don’t need to be particularly useful, but they should be different from the default methods.
+
+new_silly_df <- function(x) {
+  class(x) <- "silly_df"
+  x
+}
+
+class(new_silly_df(mtcars))
+
+#write a constructor function for the "silly_df" class (want to build a contructor function (13.3.1 Constructors))
+new_silly_df <- function(x, why_silly = "Because I watched too much Monty Python") {
+  # check that input is a data frame
+  if(!is.data.frame(x) != TRUE) {
+    stop("First argument must be a data frame")
+  }
+  if(!(is.character(why_silly) & length(why_silly == 1))) {
+    stop("why_silly must be a character vector of length 1")
+  }
+  
+  class(x) <- c("silly_df", "data.frame") #inherit data frame?
+  attr(x, "why_silly") <- why_silly
+  x
+}
+
+# type this into console to check
+#silly_mtcars <- new_silly_df(mtcars)
+#class(silly_mtcars)
+#summary(silly_df)
+#summary(silly_mtcars)
+
+# Write a summary method for silly_df
+summary.silly_df <- function(x) {
+  why_silly <- attr(x, "why_silly")
+  print(paste0("The reason I'm silly is", why_silly))
+  print(summary.data.frame(x))
+  summary.data.frame(x)
+}
+  why_silly 
+
+  #check
+  #summary(silly_mtcars)
+#sloop::s3_dispatch(summary(silly_cars))
+  
+  
+  
+# Write a validator method
+  validate_silly_df <- function(x) {
+    if(is.null(attr(x, "why_silly"))) {
+      stop("why_silly attribute is missing")
+    }
+    
+    # check that it is a valid data frame, too
+  }
+
+```
+
