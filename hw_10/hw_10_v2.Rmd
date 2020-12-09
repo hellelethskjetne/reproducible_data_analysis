@@ -206,6 +206,20 @@ NorthAmerican <- function(eatsBreakfast=TRUE,myFavorite="cereal")
 ```{r q5, include=TRUE}
 # ## Write print and summarise methods for this class. These methods don’t need to be particularly useful, but they should be different from the default methods.
 
+#Here's one way:
+print.dog <- function(x) {
+  cat("Print dog")
+}
+print(aussie)
+
+summarise.dog <- function(x) {
+  cat("summarize dog")
+}
+summarise(aussie)
+
+# OR ANOTHER WAY IS LIKE THIS:
+
+
 # Any object in R can have any number of attributes
 mtcars_copy <- mtcars
 mtcars_copy
@@ -223,27 +237,27 @@ summary(mtcars_copy)
 
 ## Write print and summarise methods for this class. These methods don’t need to be particularly useful, but they should be different from the default methods.
 
-new_silly_df <- function(x) {
-  class(x) <- "silly_df"
-  x
-}
+#why_silly <- function(x) {
+ # class(x) <- "silly_df"
+ # x
+#}
 
-class(new_silly_df(mtcars))
+#class(new_silly_df(mtcars))
 
 #write a constructor function for the "silly_df" class (want to build a contructor function (13.3.1 Constructors))
-new_silly_df <- function(x, why_silly = "Because I watched too much Monty Python") {
+#new_silly_df <- function(x, why_silly = "Because I watched too much Monty Python") {
   # check that input is a data frame
-  if(!is.data.frame(x) != TRUE) {
-    stop("First argument must be a data frame")
-  }
-  if(!(is.character(why_silly) & length(why_silly == 1))) {
-    stop("why_silly must be a character vector of length 1")
-  }
+  #if(!is.data.frame(x) != TRUE) {
+    #stop("First argument must be a data frame")
+  #}
+  #if(!(is.character(why_silly) & length(why_silly == 1))) {
+   # stop("why_silly must be a character vector of length 1")
+  #}
   
-  class(x) <- c("silly_df", "data.frame") #inherit data frame?
-  attr(x, "why_silly") <- why_silly
-  x
-}
+  #class(x) <- c("silly_df", "data.frame") #inherit data frame?
+ # attr(x, "why_silly") <- why_silly
+ # x
+#}
 
 # type this into console to check
 #silly_mtcars <- new_silly_df(mtcars)
@@ -252,13 +266,13 @@ new_silly_df <- function(x, why_silly = "Because I watched too much Monty Python
 #summary(silly_mtcars)
 
 # Write a summary method for silly_df
-summary.silly_df <- function(x) {
-  why_silly <- attr(x, "why_silly")
-  print(paste0("The reason I'm silly is", why_silly))
-  print(summary.data.frame(x))
-  summary.data.frame(x)
-}
-  why_silly 
+#summary.silly_df <- function(x) {
+  #why_silly <- attr(x, "why_silly")
+  #print(paste0("The reason I'm silly is", why_silly))
+  #print(summary.data.frame(x))
+  #summary.data.frame(x)
+#}
+ # why_silly 
 
   #check
   #summary(silly_mtcars)
@@ -267,13 +281,13 @@ summary.silly_df <- function(x) {
   
   
 # Write a validator method
-  validate_silly_df <- function(x) {
-    if(is.null(attr(x, "why_silly"))) {
-      stop("why_silly attribute is missing")
-    }
+  #validate_silly_df <- function(x) {
+    #if(is.null(attr(x, "why_silly"))) {
+     # stop("why_silly attribute is missing")
+    #}
     
     # check that it is a valid data frame, too
-  }
+  #}
 
 ```
 
